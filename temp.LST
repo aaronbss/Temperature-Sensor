@@ -1,0 +1,147 @@
+C51 COMPILER V8.12   TEMP                                                                  06/15/2017 14:32:58 PAGE 1   
+
+
+C51 COMPILER V8.12, COMPILATION OF MODULE TEMP
+OBJECT MODULE PLACED IN temp.OBJ
+COMPILER INVOKED BY: C:\Keil\C51\BIN\C51.EXE temp.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include<reg51.h>
+   2          #define dataport P2
+   3          #define adc_input P0
+   4          sbit rs = P3^0;
+   5          sbit rw = P3^1;
+   6          sbit e = P3^2;
+   7          sbit wr= P3^3;
+   8          sbit rd= P3^4;
+   9          sbit intr= P3^5;
+  10          void delay(unsigned int);
+  11          void lcd_cmd(unsigned char);
+  12          void lcd_data(unsigned char);
+  13          void lcd_data_string(unsigned char*);
+  14          void lcd_init();
+  15          void adc_conv();
+  16          void adc_read();
+  17          void lcd_data_adc(unsigned int);
+  18          int num[10];
+  19          void main()
+  20          {
+  21   1      while(1)
+  22   1      {
+  23   2      dataport=0x00;
+  24   2      adc_input=0xff;
+  25   2      P3=0x00;
+  26   2      lcd_init();
+  27   2      lcd_data_string("TEMPERATURE=");
+  28   2      adc_conv();
+  29   2      adc_read();
+  30   2      lcd_data('C');
+  31   2      delay(50);
+  32   2       }
+  33   1      }
+  34          void lcd_init()
+  35          {
+  36   1      lcd_cmd(0x01);
+  37   1      delay(1);
+  38   1      lcd_cmd(0x06);
+  39   1      delay(1);
+  40   1      lcd_cmd(0x0e);
+  41   1      delay(1);
+  42   1      lcd_cmd(0x38);
+  43   1      delay(1);
+  44   1      lcd_cmd(0x80);
+  45   1      delay(1);
+  46   1      }
+  47          void delay(unsigned int sec )
+  48          {
+  49   1      int i ,j ;
+  50   1      for(i=0;i<sec;i++)
+  51   1        for(j=0; j<1275; j++);
+  52   1      }
+  53          void lcd_cmd(unsigned char item)
+  54          {
+  55   1      dataport=item;
+C51 COMPILER V8.12   TEMP                                                                  06/15/2017 14:32:58 PAGE 2   
+
+  56   1      rs= 0;
+  57   1      rw=0;
+  58   1      e=1;
+  59   1      delay(1);
+  60   1      e=0;
+  61   1      return;
+  62   1      }
+  63          void lcd_data(unsigned char item) 
+  64          {
+  65   1      dataport = item;
+  66   1      rs= 1;
+  67   1      rw=0;
+  68   1      e=1;
+  69   1      delay(1);
+  70   1      e=0;
+  71   1      }
+  72          void adc_conv()
+  73          {                      
+  74   1      wr = 0;
+  75   1      delay(2);                     
+  76   1      wr = 1;                     
+  77   1      while(intr);
+  78   1      delay(2);
+  79   1      intr=1; 
+  80   1      }
+  81          void adc_read()
+  82          {
+  83   1      unsigned int value;                  
+  84   1      rd = 0;
+  85   1      delay(2);
+  86   1      value=adc_input;
+  87   1      delay(1);
+  88   1      rd=1; 
+  89   1      lcd_data_adc(value);                                          
+  90   1      }
+  91          void lcd_data_adc(unsigned int i)
+  92          {
+  93   1      int p;
+  94   1      int k=0;
+  95   1      while(i>0)
+  96   1      {
+  97   2        num[k]=i%10;
+  98   2        i=i/10;
+  99   2        k++;
+ 100   2      }
+ 101   1      k--;
+ 102   1      for (p=k;p>=0;p--)
+ 103   1      {
+ 104   2      dataport=num[p]+48;
+ 105   2      rw = 0;
+ 106   2      rs = 1;
+ 107   2      e = 1;
+ 108   2      delay(1);
+ 109   2      e = 0;
+ 110   2      }
+ 111   1      }
+ 112          void lcd_data_string(char *x)
+ 113          {
+ 114   1          while(*x!='\0')
+ 115   1          {
+ 116   2              lcd_data(*x);
+ 117   2              delay(2);
+C51 COMPILER V8.12   TEMP                                                                  06/15/2017 14:32:58 PAGE 3   
+
+ 118   2              x++;
+ 119   2          }
+ 120   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    346    ----
+   CONSTANT SIZE    =     13    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     20       3
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
